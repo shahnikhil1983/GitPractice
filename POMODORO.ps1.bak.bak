@@ -1,4 +1,3 @@
-hello
 # Load the required assembly for mouse actions
 Add-Type -TypeDefinition @"
 using System;
