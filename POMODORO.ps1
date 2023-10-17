@@ -1,3 +1,5 @@
+#hello
+#hello
 # Check if the Windows Input Simulator module is installed
 if (-not (Get-Module -ListAvailable -Name 'InputSimulator')) {
     Install-Module -Name 'InputSimulator' -Force -Scope CurrentUser

@@ -1,26 +1,27 @@
-hello
-# Load the required assembly for mouse actions
-Add-Type -TypeDefinition @"
-using System;
-using System.Runtime.InteropServices;
-public class MouseInput {
-    [DllImport("user32.dll")]
-    public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
-
-    public const int MOUSEEVENTF_LEFTDOWN = 0x02;
-    public const int MOUSEEVENTF_LEFTUP = 0x04;
+# Check if the Windows Input Simulator module is installed
+if (-not (Get-Module -ListAvailable -Name 'InputSimulator')) {
+    Install-Module -Name 'InputSimulator' -Force -Scope CurrentUser
 }
-"@
 
-# Function to perform a random mouse click
+# Import the InputSimulator module
+Import-Module InputSimulator
+
+# Function to perform a single random mouse click
 function PerformRandomClick {
-    $screenBounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-    $randomX = Get-Random -Minimum 0 -Maximum $screenBounds.Width
-    $randomY = Get-Random -Minimum 0 -Maximum $screenBounds.Height
+    $screenWidth = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
 
-    [MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTDOWN, $randomX, $randomY, 0, 0)
-    [MouseInput]::mouse_event([MouseInput]::MOUSEEVENTF_LEFTUP, $randomX, $randomY, 0, 0)
+    $randomX = Get-Random -Minimum 0 -Maximum $screenWidth
+    $randomY = Get-Random -Minimum 0 -Maximum $screenHeight
+
+    $simulator = New-Object WindowsInput.InputSimulator
+    $simulator.Mouse.MoveMouseToPositionOnVirtualDesktop($randomX, $randomY)
+    $simulator.Mouse.LeftButtonClick()
 }
 
-# Perform a random click
-PerformRandomClick
+# Loop to perform random clicks every 4 minutes
+while ($true) {
+    PerformRandomClick
+    Write-Host "Performed a random click."
+    Start-Sleep -Seconds (4 * 60)  # Sleep for 4 minutes
+}
